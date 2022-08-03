@@ -4,7 +4,7 @@ const template = document.querySelector('#productTemplate');
 // Fonction qui importe les éléments de l'API
 async function getProductsFromApi() {
   const http_response = await fetch("http://localhost:3000/api/products")
-  return await http_response.json()
+  return http_response.json()
 }
 
 // Fonction init qui permet d'utiliser la fonction buildProductCardUI pour tous les produits stockés dans l'API
@@ -12,6 +12,7 @@ async function init() {
   const products = await getProductsFromApi();
   products.forEach(product => buildProductCardUI(product))
 }
+
 // Fonction permettant de créer l'élément DOM représentant une "card" produit et cloner le template pour le répeter autant de fois que nécessaire
 function buildProductCardUI(product) {
     // On choisit l'endroit où nous souhaitons voir le template affiché dans le code html

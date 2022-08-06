@@ -9,14 +9,10 @@ async function getArticleFromApi() {
 
 // Fonction init qui permet d'utiliser la fonction buildProductPage pour le produit selectioné
 async function init() {
-  // if (!null) => true
-  // if (!undefined) => true
-  // if (!0) => true !!!
   if (!idProduct) {
-    alert("Pas d'id produit");
+    alert("Oups, un problème est survenu. Contactez nous pour plus d'information.");
     return;
   }
-
   const product = await getArticleFromApi();
   buildProductPage(product);
 }
@@ -28,34 +24,53 @@ function buildProductPage(product) {
   let productTitle = document.querySelector("#title");
   let productPrice = document.querySelector("#price");
   let productDescription = document.querySelector("#description");
+  let addToCart = document.querySelector("#addToCart");
   //créer l'image
   itemImg.appendChild(productImg);
   productImg.src = product.imageUrl;
   productImg.alt = product.altText;
+  // Colors
+  product.colors.forEach(color => {
+    let option = document.createElement("option");
+    option.setAttribute("value", color);
+    option.innerText = color;
+    document.querySelector("#colors").appendChild(option);
+  });
   // On injecte l'information de l'API 
   productTitle.textContent = product.name;
   productPrice.textContent = product.price;
   productDescription.textContent = product.description;
+  addToCart.onclick = addCart;
+}
+
+
+
+  
+// Fonction qui récupère les éléments du panier au clic et qui les stock dans LocalStorage
+function addCart() {
+  
+  let cartValues = {
+      id: idProduct,
+      quantity: document.querySelector("#quantity").value,
+      color: document.querySelector("#colors").value
+  };
+  console.log(cartValues);
+
+  // Vérifie que les éléments du panier possède une valeur correcte
+  if (!cartValues.color) {
+    alert("Selectionnez une couleur!");
+    return;
+  };
+  if (Number(cartValues.quantity) <= 0) {
+    alert("Selectionnez une quantité!");
+    return;
+  };
+
+  let cartInfoStorage = JSON.stringify(cartValues);
+  localStorage.setItem("cart",cartInfoStorage);
+  console.log(cartInfoStorage);
+  alert("Produit ajouté au panier!");
 }
 
 // Fonction init qui implemente les informations sur la page web
 init();
-
-// coucou().then((a) => {
-//   return fonctionAsynchroneA(a)
-// }).then((b) => {
-//   return fonctionAsynchroneB(b)
-// }).then((c) => {
-//   return fonctionAsynchroneC(c)
-// }).catch(error => {
-//   console.log(error)
-// })
-
-// try {
-//   const resultatA = await coucou()
-//   const resultatB = await fonctionAsynchroneA(resultatA)
-//   const resultatC = await fonctionAsynchroneB(resultatB)
-//   const resultatFinal = await fonctionAsynchroneC(resultatC) 
-// } catch (error) {
-//   console.log(error)
-// }

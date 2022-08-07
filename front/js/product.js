@@ -65,11 +65,30 @@ function addCart() {
     alert("Selectionnez une quantité!");
     return;
   };
+  
+  // let cartInfoStorage = JSON.stringify(cartValues);
+  // localStorage.setItem("cart",cartInfoStorage);
+  // console.log(cartInfoStorage);
+  // alert("Produit ajouté au panier!");
 
-  let cartInfoStorage = JSON.stringify(cartValues);
-  localStorage.setItem("cart",cartInfoStorage);
-  console.log(cartInfoStorage);
-  alert("Produit ajouté au panier!");
+
+const cart = []
+//modifier la quantité d'un élément du panier
+if (cart !=== null) {
+    // Vérification si un produit identique (même id et même couleur) est déjà présent dans le localStorage
+    let existingProduct = cart.includes(idProduct [1] && colors [3]);
+    
+    // Si le produit commandé est identique (même id et même couleur), on incrémente la quantité
+    if (existingProduct===true) {
+        let totalNewQuantity = Number(cartValues.quantity) + Number(existngProduct.quantity);
+        existingProduct.quantity = totalNewQuantity;
+
+    // Si le produit commandé n'est pas identique, on l'ajoute au localStorage
+    } else {
+      cart.push(cartValues);
+    }
+  }
+  console.log (cart);
 }
 
 // Fonction init qui implemente les informations sur la page web

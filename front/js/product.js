@@ -1,6 +1,7 @@
+import { addToCart } from "./lib/cart.js";
+
 //Je vais chercher l'id contenu dans l'URL de la page produit
 const idProduct = new URL(window.location.href).searchParams.get("id");
-const cart = localStorage.getItem('cart') || [];
 
 // Fonction qui importe l'élément souhaité de l'API
 async function getArticleFromApi() {
@@ -57,40 +58,5 @@ function addProductToCart() {
 
   addToCart(cartItem);
 }
-
-function addToCart(cartItem) {
-  // Vérifie que les éléments du panier possède une valeur correcte
-  if (!cartItem.color) {
-    alert("Selectionnez une couleur!");
-    return;
-  };
-
-  if (Number(cartItem.quantity) <= 0) {
-    alert("Selectionnez une quantité!");
-    return;
-  };
-console.log(cart);
-console.log(cartItem);
-  // const cartItemFound = cart.find(item => cartItem.id === item.id && cartItem.color === item.color )
-  const cartItemFound = cart.find((cartItem) => {
-    // Condtion de recherche pour indiquer si oui ou non c'est bien le produit recherché
-    cartItem.id === cart.id && cartItem.color === cart.color;
-    return cartItem.id === cart.id && cartItem.color === cart.color;
-  })
-  console.log(cartItemFound);
-  // Si product found => alors juste mettre à jour la quantité du produit par la nouvelle quantité
-  // Si product not found => alors ajouter le produit dans le tableau
-  if (!cartItemFound) {
-    cart[cartItemFound].quantity = cartItem.quantity
-  } else {
-    cart.push(cartItem);
-  }
-
-  localStorage.setItem('cart', cart); // update localstorage when everything is ok !
-  console.log(cart);
-  alert('Produit bien ajouté, même quand ça marche pas !!!!! Alors heureuse ?');
-}
-
-
 // Fonction init qui implemente les informations sur la page web
 init();

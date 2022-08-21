@@ -28,34 +28,44 @@ if (!choosen_product.color) {
 }
 
 // --------------------------------------------- SUPPRIMER UN ELEMENT ---------------------------------------------
-const boutonSupprimer = document.querySelectorAll(".deleteItem");
+function removeFromCart() {
+    var boutonDelete = document.querySelectorAll(".deleteItem");
+    for (var k = 0; k < boutonDelete.length; k++) {
+        boutonDelete[k].addEventListener("click", (event) => {
+            event.preventDefault();
+            cart.splice(k, 1);
+            localStorage.setItem('cart',JSON.stringify(cart));
+            
+            //localStorage.removeItem(cart[k]);
+                alert('Produit supprimé');
+            location.reload();
+        })
+    }
+}
 
-function removeFromCart(id, color)  {
-
-};
-    
 
 
 // --------------------------------------------- MODIFIER LA QUANTITE ---------------------------------------------
-function updateCartItemQuantity(id, quantity){
+function updateCartItemQuantity() {
     var qttModif = document.querySelectorAll(".itemQuantity");
-
     for (var k = 0; k < qttModif.length; k++) {
+        console.log(cart[k].quantity);
+        console.log(qttModif[k]);
         qttModif[k].addEventListener("change", (event) => {
             event.preventDefault();
-
             //Selection de l'element à modifier en fonction de son id ET sa couleur
-            var quantityCart = cart[k].quantity;
-
-            // Quantité à modifier = en fonction de cartItemFound (product.js)
-
-            localStorage.setItem('cart', cart); // MAJ localstorage
-            console.log(cart);
+            var newQttModif = qttModif[k].valueAsNumber;
+            cart[k].quantity = newQttModif;
+            // MAJ localstorage
+            cart.push(cart[k]);
+            localStorage.setItem('cart', JSON.stringify(cart));
             alert('Quantité modifiée');
+            location.reload();
         })
     }
+}
 
-};
+
 
 // ------------- Récuperer les infos nom/photo dans l'API pour les éléments du panier -------------------------
     // boucler sur le panier
@@ -67,7 +77,6 @@ async function getCartItems() {
     var productsAPI;
     const http_response = await fetch("http://localhost:3000/api/products")
     productsAPI = await http_response.json()
-    console.log(productsAPI);
     for (let indexCart of cart) {
         for (let indexAPI of productsAPI) {
             if (indexCart.id === indexAPI._id) {
@@ -77,7 +86,6 @@ async function getCartItems() {
             }
         }
     }
-    console.log(cart);
 }
 
 export { addToCart, updateCartItemQuantity, removeFromCart, getCartItems , cart as "cart"}

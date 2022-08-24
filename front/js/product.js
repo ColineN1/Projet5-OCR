@@ -26,7 +26,7 @@ async function init() {
 function buildProductPage(product) {
   const itemImg = document.querySelector(".item__img");
   const productImg = document.createElement("img");
-  const productTitle = document.querySelector("#title");
+  const productTitle = document.querySelector('title');
   const productPrice = document.querySelector("#price");
   const productDescription = document.querySelector("#description");
 
@@ -56,7 +56,11 @@ function addProductToCart() {
     color: document.querySelector("#colors").value
   };
 
-  addToCart(cartItem);
+  if (addToCart(cartItem)) {
+    alert('Produit bien ajouté au panier');
+  } else {
+    alert('Il y a eu un soucis lors de l\'ajout du produit au panier');
+  }
 }
 // Fonction init qui implemente les informations sur la page web
 init();

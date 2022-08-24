@@ -1,26 +1,34 @@
-import { removeFromCart, updateCartItemQuantity, getCartItems, "cart" as cart} from "./lib/cart.js";
+import { removeFromCart, updateCartItemQuantity, getCart, onCartUpdated } from "./lib/cart.js";
 
 // Permet de créer un template pour un produit contenu dans le Local Storage
 const template = document.querySelector('#cartTemplate');
-
+let cart;
 
 // Fonction init qui permet d'utiliser la fonction displayProductCart pour tous les produits stockés dans l'API
-function init() {
+async function init() {
+    cart = await getCart();
     displayProductCart();
     totalProductsCart();
+    checkForm();
+    removeFromCart();
+    onCartUpdated(cart => {
+        console.log('ON CART UPDATED', cart);
+        cart = cart
+        // TODO : Update totaux
+        // totalProductsCart();
+    });
 };
 
 // --------------------------------------------- AFFICHER LE PANIER ---------------------------------------------
 async function displayProductCart() {
-    await getCartItems();
-    if (cart === null) {
+    if (cart.items.length === 0) {
         const newDivEmptyCart = document.createElement('p');
         newDivEmptyCart.textContent = 'Votre panier est vide';
         document.querySelector("#cart__items").appendChild(newDivEmptyCart);
     } else {
-        cart.forEach(product => buildDisplayProductCart(product));
-        updateCartItemQuantity();
-        removeFromCart();
+        cart.items.forEach(product => buildDisplayProductCart(product));
+        // updateCartItemQuantity();
+        // removeFromCart();
     }
 };
 
@@ -35,30 +43,48 @@ function buildDisplayProductCart(product) {
     const productDescColor = productListElement.querySelector('.cart__item__content__description__color');
     const productDescPrice = productListElement.querySelector('.cart__item__content__description__price');
     const productQuantity = productListElement.querySelector('.itemQuantity');
+    const productDataInfos = productListElement.querySelector('.cart__item');
+    const deleteItem = productListElement.querySelector('.deleteItem');
+    
     // On injecte l'information de l'API
     productImg.src = product.imageUrl;
     productDescH2.textContent = product.name;
     productDescColor.textContent = product.color;
     productDescPrice.textContent = product.price + "€";
     productQuantity.value = product.quantity;
+    productDataInfos.setAttribute("data-id", product.id);
+    productDataInfos.setAttribute("data-color", product.color);
     // On affiche la card créée 
     items.appendChild(productListElement);
+
+
+    // Changer la quantité du produit Bind sur l'input change de la quantité
+    // updateCartItemQuantity()
+    productQuantity.addEventListener("change", function handleClick(event) {
+        let productQuantityChange = event.target.value;
+        let productDataId = event.target.closest('.cart__item').getAttribute('data-id');
+        let productDataColor = event.target.closest('.cart__item').getAttribute('data-color');
+        console.log(productDataColor, productDataId, productQuantityChange); 
+        updateCartItemQuantity(productDataId, productDataColor, productQuantityChange);
+    });
+
+
+    // Supprimer du panier : Bind sur le click du lien supprimer
+    deleteItem.addEventListener("click", function handleClick(event) {
+        console.log(event.target.closest('.cart__item'));
+        let productDataId = event.target.closest('.cart__item').getAttribute('data-id');
+        let productDataColor = event.target.closest('.cart__item').getAttribute('data-color');  
+        removeFromCart(productDataId, productDataColor);
+    });
+        
+    
 }
 
 async function totalProductsCart() {
-    await getCartItems();
-    var finalQuantity = 0;
-    var finalPrice = 0;
-    for (var i = 0; i < cart.length; i++) {
-        finalQuantity += Number(cart[i].quantity);
-    };
-    for (var i = 0; i < cart.length; i++) {
-        finalPrice += ((cart[i].price)*(cart[i].quantity));
-    };
     const totalQuantity = document.querySelector('#totalQuantity');
     const totalPrice = document.querySelector('#totalPrice');
-    totalQuantity.textContent = finalQuantity;
-    totalPrice.textContent = finalPrice;
+    totalQuantity.textContent = cart.totalQuantity;
+    totalPrice.textContent = cart.totalPrice;
 }
 
 
@@ -132,19 +158,19 @@ function checkForm() {
     orderButton.addEventListener('click', function (event) {
         event.preventDefault();
         //Vérifier les inputs//
-        if (cart) {
-            alert("Attention, il semblerait que tous les champs n'aient pas été correctement remplis.");
-        } else {
-            fullFormCheck();
-        }
+        // if (cart === null ) {
+        //     alert("Votre panier est vide. Veuillez remplir votre panier si vous souhaitez passer commande.");
+        // } else if ( comment faire car pas de return sur les addEventListener  ) {
+        //     alert("Attention, il semblerait que tous les champs n'aient pas été correctement remplis.");
+        // } else {
+        //     inputOrder();
+        // }
     });
 }
-function fullFormCheck() {
+function inputOrder() {
 
 }
 
-
-checkForm();
 
 //Récupération et envoie des information de la commande
   

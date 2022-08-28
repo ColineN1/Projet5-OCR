@@ -10,12 +10,11 @@ async function init() {
     displayProductCart();
     totalProductsCart();
     checkForm();
-    removeFromCart();
     onCartUpdated(cart => {
         console.log('ON CART UPDATED', cart);
         cart = cart
         // TODO : Update totaux
-        // totalProductsCart();
+        totalProductsCart();
     });
 };
 
@@ -27,8 +26,6 @@ async function displayProductCart() {
         document.querySelector("#cart__items").appendChild(newDivEmptyCart);
     } else {
         cart.items.forEach(product => buildDisplayProductCart(product));
-        // updateCartItemQuantity();
-        // removeFromCart();
     }
 };
 
@@ -58,13 +55,11 @@ function buildDisplayProductCart(product) {
     items.appendChild(productListElement);
 
 
-    // Changer la quantité du produit Bind sur l'input change de la quantité
-    // updateCartItemQuantity()
+    // Changer la quantité du produit: Bind sur l'input change de la quantité
     productQuantity.addEventListener("change", function handleClick(event) {
         let productQuantityChange = event.target.value;
         let productDataId = event.target.closest('.cart__item').getAttribute('data-id');
         let productDataColor = event.target.closest('.cart__item').getAttribute('data-color');
-        console.log(productDataColor, productDataId, productQuantityChange); 
         updateCartItemQuantity(productDataId, productDataColor, productQuantityChange);
     });
 
@@ -73,7 +68,10 @@ function buildDisplayProductCart(product) {
     deleteItem.addEventListener("click", function handleClick(event) {
         console.log(event.target.closest('.cart__item'));
         let productDataId = event.target.closest('.cart__item').getAttribute('data-id');
-        let productDataColor = event.target.closest('.cart__item').getAttribute('data-color');  
+        let productDataColor = event.target.closest('.cart__item').getAttribute('data-color');
+        let elementToRemove = event.target.closest('.cart__item');
+        console.log(elementToRemove);
+        elementToRemove.remove();  
         removeFromCart(productDataId, productDataColor);
     });
         
@@ -83,8 +81,8 @@ function buildDisplayProductCart(product) {
 async function totalProductsCart() {
     const totalQuantity = document.querySelector('#totalQuantity');
     const totalPrice = document.querySelector('#totalPrice');
-    totalQuantity.textContent = cart.totalQuantity;
-    totalPrice.textContent = cart.totalPrice;
+    totalQuantity.textContent = "" ;
+    totalPrice.textContent = "" ;
 }
 
 
@@ -158,22 +156,49 @@ function checkForm() {
     orderButton.addEventListener('click', function (event) {
         event.preventDefault();
         //Vérifier les inputs//
-        // if (cart === null ) {
-        //     alert("Votre panier est vide. Veuillez remplir votre panier si vous souhaitez passer commande.");
-        // } else if ( comment faire car pas de return sur les addEventListener  ) {
-        //     alert("Attention, il semblerait que tous les champs n'aient pas été correctement remplis.");
-        // } else {
-        //     inputOrder();
-        // }
+            if (cart === null ) {
+            alert("Votre panier est vide. Veuillez remplir votre panier si vous souhaitez passer commande.");
+         } else if ( (namesCheck(firstNameFormLocation.value) && namesCheck(lastNameFormLocation.value) && addressCheck(addressFormLocation.value) && namesCheck(cityFormLocation.value), emailCheck(emailFormLocation.value)) === false ) {
+            alert("Attention, il semblerait que tous les champs n'aient pas été correctement remplis.");
+         } else {
+           inputOrder();
+           console.log("commande ok");
+         }
     });
 }
-function inputOrder() {
-
-}
-
 
 //Récupération et envoie des information de la commande
-  
+async function inputOrder() {
+    //Récupération des coordonnées du formulaire client
+    let inputName = document.querySelector('#firstName');
+    let inputLastName = document.querySelector('#lastName');
+    let inputAdress = document.querySelector('#address');
+    let inputCity = document.querySelector('#city');
+    let inputMail = document.querySelector('#email');
+
+    //Construction du recapitulatif commande
+    const order = {
+        contact : {
+            firstName: inputName.value,
+            lastName: inputLastName.value,
+            address: inputAdress.value,
+            city: inputCity.value,
+            email: inputMail.value,
+        },
+        products: cart,
+    } ;
+    console.log(order);
+
+    //
+    const response= await fetch("http://localhost:3000/api/products/order",{
+                            method: "POST",
+                            headers: {
+                            Accept: "application.json",
+                            'Content-Type': "application/json"
+                            },
+                            body: JSON.stringify(order),
+                        })
+}
 
 
 // Fonction init qui implemente les différents produit du cart sur la page web

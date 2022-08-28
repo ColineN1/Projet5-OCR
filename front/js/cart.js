@@ -100,7 +100,7 @@ function namesCheck(names) {
     return /^[aa-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]*$/.test(names);
 }
 function addressCheck(address) {
-    return /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-0-9 ]*$/.test(address);
+    return /^[a-zA-Z0-9àáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]*$/.test(address);
 }
 function emailCheck(email) {
     return /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/.test(email);
@@ -158,7 +158,7 @@ function checkForm() {
         //Vérifier les inputs//
             if (cart === null ) {
             alert("Votre panier est vide. Veuillez remplir votre panier si vous souhaitez passer commande.");
-         } else if ( (namesCheck(firstNameFormLocation.value) && namesCheck(lastNameFormLocation.value) && addressCheck(addressFormLocation.value) && namesCheck(cityFormLocation.value), emailCheck(emailFormLocation.value)) === false ) {
+         } else if ( (namesCheck(firstNameFormLocation.value) && namesCheck(lastNameFormLocation.value) && addressCheck(addressFormLocation.value) && namesCheck(cityFormLocation.value) && emailCheck(emailFormLocation.value)) === false ) {
             alert("Attention, il semblerait que tous les champs n'aient pas été correctement remplis.");
          } else {
            inputOrder();
@@ -177,6 +177,11 @@ async function inputOrder() {
     let inputMail = document.querySelector('#email');
 
     //Construction du recapitulatif commande
+    const products = [];
+      for (let i = 0; i < cart.length; i++) {
+        products.push(cart[i].id);
+      }
+
     const order = {
         contact : {
             firstName: inputName.value,
@@ -185,20 +190,22 @@ async function inputOrder() {
             city: inputCity.value,
             email: inputMail.value,
         },
-        products: cart,
+        products,
     } ;
     console.log(order);
 
-    //
     const response= await fetch("http://localhost:3000/api/products/order",{
                             method: "POST",
                             headers: {
-                            Accept: "application.json",
                             'Content-Type': "application/json"
                             },
                             body: JSON.stringify(order),
                         })
+    const data = await response.json();
+    //let confirmationUrl = "./confirmation.html?id=" + data.orderId;
+    //window.location.href = confirmationUrl;
 }
+
 
 
 // Fonction init qui implemente les différents produit du cart sur la page web

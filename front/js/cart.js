@@ -12,9 +12,11 @@ async function init() {
     checkForm();
     onCartUpdated(cart => {
         console.log('ON CART UPDATED', cart);
-        cart = cart
-        // TODO : Update totaux
-        totalProductsCart();
+        cart = cart;
+        const totalQuantityElement = document.querySelector('#totalQuantity');
+        const totalPriceElement = document.querySelector('#totalPrice');
+        totalQuantityElement.textContent = cart.totalQuantity;
+        totalPriceElement.textContent = cart.totalPrice;
     });
 };
 
@@ -34,7 +36,7 @@ function buildDisplayProductCart(product) {
     const items = document.querySelector("#cart__items");
     //On clone le template
     const productListElement = document.importNode(template.content, true);
-    // On va chercher chaque élément du templates 
+    // On va chercher chaque élément du template 
     const productImg = productListElement.querySelector('.cart__item__img__src');
     const productDescH2 = productListElement.querySelector('.cart__item__content__description__h2');
     const productDescColor = productListElement.querySelector('.cart__item__content__description__color');
@@ -42,7 +44,7 @@ function buildDisplayProductCart(product) {
     const productQuantity = productListElement.querySelector('.itemQuantity');
     const productDataInfos = productListElement.querySelector('.cart__item');
     const deleteItem = productListElement.querySelector('.deleteItem');
-    
+
     // On injecte l'information de l'API
     productImg.src = product.imageUrl;
     productDescH2.textContent = product.name;
@@ -71,18 +73,18 @@ function buildDisplayProductCart(product) {
         let productDataColor = event.target.closest('.cart__item').getAttribute('data-color');
         let elementToRemove = event.target.closest('.cart__item');
         console.log(elementToRemove);
-        elementToRemove.remove();  
+        elementToRemove.remove();
         removeFromCart(productDataId, productDataColor);
     });
-        
-    
+
+
 }
 
-async function totalProductsCart() {
-    const totalQuantity = document.querySelector('#totalQuantity');
-    const totalPrice = document.querySelector('#totalPrice');
-    totalQuantity.textContent = "" ;
-    totalPrice.textContent = "" ;
+function totalProductsCart() {
+    const totalQuantityElement = document.querySelector('#totalQuantity');
+    const totalPriceElement = document.querySelector('#totalPrice');
+    totalQuantityElement.textContent = cart.totalQuantity;
+    totalPriceElement.textContent = cart.totalPrice;
 }
 
 
@@ -114,7 +116,8 @@ function checkForm() {
             errorFirstName.textContent = "Veuillez entrer un prénom valide (lettres en minuscule ou majuscule uniquement)";
         } else {
             errorFirstName.textContent = "";
-        }}
+        }
+    }
     )
     //Vérifier le contenu de l'élément lastName//
     lastNameFormLocation.addEventListener("change", () => {
@@ -156,14 +159,14 @@ function checkForm() {
     orderButton.addEventListener('click', function (event) {
         event.preventDefault();
         //Vérifier les inputs//
-            if (cart === null ) {
+        if (cart === null) {
             alert("Votre panier est vide. Veuillez remplir votre panier si vous souhaitez passer commande.");
-         } else if ( (namesCheck(firstNameFormLocation.value) && namesCheck(lastNameFormLocation.value) && addressCheck(addressFormLocation.value) && namesCheck(cityFormLocation.value) && emailCheck(emailFormLocation.value)) === false ) {
+        } else if ((namesCheck(firstNameFormLocation.value) && namesCheck(lastNameFormLocation.value) && addressCheck(addressFormLocation.value) && namesCheck(cityFormLocation.value) && emailCheck(emailFormLocation.value)) === false) {
             alert("Attention, il semblerait que tous les champs n'aient pas été correctement remplis.");
-         } else {
-           inputOrder();
-           console.log("commande ok");
-         }
+        } else {
+            inputOrder();
+            console.log("commande ok");
+        }
     });
 }
 
@@ -177,36 +180,28 @@ async function inputOrder() {
     let inputMail = document.querySelector('#email');
 
     //Construction du recapitulatif commande
-    const products = [];
-      for (let i = 0; i < cart.length; i++) {
-        products.push(cart[i].id);
-      }
-
     const order = {
-        contact : {
+        contact: {
             firstName: inputName.value,
             lastName: inputLastName.value,
             address: inputAdress.value,
             city: inputCity.value,
             email: inputMail.value,
         },
-        products,
-    } ;
-    console.log(order);
+        products: cart.items.map(item => item.id),
+    };
 
-    const response= await fetch("http://localhost:3000/api/products/order",{
-                            method: "POST",
-                            headers: {
-                            'Content-Type': "application/json"
-                            },
-                            body: JSON.stringify(order),
-                        })
+    const response = await fetch("http://localhost:3000/api/products/order", {
+        method: "POST",
+        headers: {
+            'Content-Type': "application/json"
+        },
+        body: JSON.stringify(order),
+    })
     const data = await response.json();
-    //let confirmationUrl = "./confirmation.html?id=" + data.orderId;
-    //window.location.href = confirmationUrl;
+    let confirmationUrl = "./confirmation.html?id=" + data.orderId;
+    window.location.href = confirmationUrl;
 }
 
-
-
-// Fonction init qui implemente les différents produit du cart sur la page web
+// Fonction init qui implemente les différentes fonctions
 init();

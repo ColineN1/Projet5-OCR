@@ -13,9 +13,7 @@ async function doCartUpdate() {
     onCartUpdatedCallback(cart);
 }
 
-/**
- * Fonctions exportées
- */
+//----------------------------------------------Fonctions exportées--------------------------------------------
 function onCartUpdated(callback) {
     onCartUpdatedCallback = callback
 }
@@ -23,26 +21,26 @@ function onCartUpdated(callback) {
 // ------------- Récuperer les infos nom/photo dans l'API pour les éléments du panier -------------------------
 // Fonction qui retourne l'état du panier
 async function getCart() {
-    const cartContentVerbose = [];
+    const items = [];
+    let totalPrice = 0;
+    let totalQuantity = 0;
 
     for (const index in cartContent) {
         const cartItem = cartContent[index]
-        const response = await fetch("http://localhost:3000/api/products/"+cartItem.id);
+        const response = await fetch("http://localhost:3000/api/products/" + cartItem.id);
         const product = await response.json();
         const { name, price, imageUrl } = product
-        cartContentVerbose.push({ ...cartItem, name, price, imageUrl });
-        const totalPrice = 0;
-        const sumTotalPrice = cartContentVerbose.reduce(
-            (previousValue, currentValue) => Number(previousValue) + Number((currentValue.quantity)*(currentValue.price)),
-            totalPrice);
-        const totalQuantity = 0;
-        const sumTotalQuantity = cartContentVerbose.reduce(
-            (previousValue, currentValue) => Number(previousValue) + Number(currentValue.quantity),
-            totalQuantity);
-        //console.log(sumTotalPrice, sumTotalQuantity);
+
+        items.push({ ...cartItem, name, price, imageUrl });
+
+        totalPrice += Number(cartItem.quantity) * Number(price)
+        totalQuantity += Number(cartItem.quantity)
     }
+
     return {
-        items: cartContentVerbose,
+        items,
+        totalPrice,
+        totalQuantity
     }
 }
 
@@ -58,7 +56,7 @@ function addToCart(choosen_product) {
         alert("Selectionnez une quantité!");
         return false;
     };
-// Recherche de l'index du produit recherché (ID & Color identiques)
+    // Recherche de l'index du produit recherché (ID & Color identiques)
     const index = cartContent.findIndex((cartItem) => {
         return cartItem.id === choosen_product.id && cartItem.color === choosen_product.color;
     })
@@ -79,14 +77,15 @@ function removeFromCart(productDataId, productDataColor) {
         return cartItem.id === productDataId && cartItem.color === productDataColor;
     })
     console.log(index);
-    if (index < 0 ) {
-         console.log("pas d'élément à supprimer")} 
-         else {cartContent.splice(index, 1); alert("Elément supprimé du panier")};
+    if (index < 0) {
+        console.log("pas d'élément à supprimer")
+    }
+    else { cartContent.splice(index, 1); alert("Elément supprimé du panier") };
     console.log(cartContent);
     updateLocalStorage();
     doCartUpdate();
     return true;
-    };
+};
 
 // --------------------------------------------- MODIFIER LA QUANTITE ---------------------------------------------
 function updateCartItemQuantity(productDataId, productDataColor, productQuantityChange) {
@@ -94,9 +93,9 @@ function updateCartItemQuantity(productDataId, productDataColor, productQuantity
         return cartItem.id === productDataId && cartItem.color === productDataColor;
     })
     console.log(index);
-    if (index < 0 ) {console.log("pas d'élément à modifier")} 
-    else {cartContent[index].quantity = productQuantityChange; alert("Quantité modifiée")};
-   console.log(cartContent);
+    if (index < 0) { console.log("pas d'élément à modifier") }
+    else { cartContent[index].quantity = productQuantityChange; alert("Quantité modifiée") };
+    console.log(cartContent);
     updateLocalStorage();
     doCartUpdate();
     return true;
